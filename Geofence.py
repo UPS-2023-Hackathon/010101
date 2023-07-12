@@ -1,3 +1,7 @@
+#checks whether a given latitude and longitude pair falls inside or outside a geofence defined by a set of coordinates.
+#the data for coordinates is being taken from dataset file in the geofence sheet
+#Code is raw and needs changes
+
 def is_inside_polygon(x, y, polygon):
     n = len(polygon)
     inside = False
