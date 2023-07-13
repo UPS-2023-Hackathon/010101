@@ -2,6 +2,8 @@ import argparse, urllib, json
 import sys
 from pymongo import MongoClient, GEOSPHERE
 from pymongo.errors import (PyMongoError, BulkWriteError)
+from pymongo import InsertOne, DeleteOne, ReplaceOne
+from pymongo.errors import BulkWriteError
 from chance import chance
 import datetime
 import csv
@@ -28,8 +30,7 @@ def generate_fake_users(count=5):
 
     return users
 
-# def insert_users(client):
-#     continue
+
 
 def insert_equipment(db):
     with open('misc/equipdataset.csv') as csv_file:
@@ -55,7 +56,90 @@ def insert_equipment(db):
 
         print(f'Processed {line_count} lines.')
 
-# def insert_buildings():
+def insert_user_geolocation(db):
+
+    write_requests = []
+
+    with open('misc/locationtracking-KYACD.csv') as csv_file1:
+        csv_reader1 = csv.DictReader(csv_file1, delimiter=',')
+        with open('misc/locationtracking-KYGRA.csv') as csv_file2:
+            csv_reader2 = csv.DictReader(csv_file2, delimiter=',')
+            with open('misc/locationtracking-NJPAR.csv') as csv_file3:
+                csv_reader3 = csv.DictReader(csv_file3, delimiter=',')
+                line_count = 0
+                for row in csv_reader1:
+                    if line_count == 0:
+                        print(f'Column names are {", ".join(row)}')
+                        line_count += 1
+                    else:
+                        row_dict = dict(row)
+                        write_requests.append(InsertOne({
+                            "equipId": row_dict["EQP_NR"],
+                            "manuallyRecorded": False,
+                            "isDirty": False,
+                            "createdAt": datetime.datetime.strptime(row_dict["EVT_DT"], "%Y-%m-%d %H:%M:%S.%f"),
+                            "facilityCode": "KYACD",
+                            "loc": {
+                                "type": "Point",
+                                "coordinates": [
+                                    row_dict["Longitude"],
+                                    row_dict["Latitude"]
+                                ]
+                            }
+                        }))                    
+                        line_count += 1
+
+                line_count = 0
+                for row in csv_reader2:
+                    if line_count == 0:
+                        print(f'Column names are {", ".join(row)}')
+                        line_count += 1
+                    else:
+                        row_dict = dict(row)
+                        write_requests.append(InsertOne({
+                            "equipId": row_dict["EQP_NR"],
+                            "manuallyRecorded": False,
+                            "isDirty": False,
+                            "createdAt": datetime.datetime.strptime(row_dict["EVT_DT"], "%Y-%m-%d %H:%M:%S.%f"),
+                            "facilityCode": "KYGRA",
+                            "loc": {
+                                "type": "Point",
+                                "coordinates": [
+                                    row_dict["Longitude"],
+                                    row_dict["Latitude"]
+                                ]
+                            }
+                        }))                    
+                        line_count += 1
+
+                line_count = 0
+                for row in csv_reader3:
+                    if line_count == 0:
+                        print(f'Column names are {", ".join(row)}')
+                        line_count += 1
+                    else:
+                        row_dict = dict(row)
+                        write_requests.append(InsertOne({
+                            "equipId": row_dict["EQP_NR"],
+                            "manuallyRecorded": False,
+                            "isDirty": False,
+                            "createdAt": datetime.datetime.strptime(row_dict["EVT_DT"], "%Y-%m-%d %H:%M:%S.%f"),
+                            "facilityCode": "NJPAR",
+                            "loc": {
+                                "type": "Point",
+                                "coordinates": [
+                                    row_dict["Longitude"],
+                                    row_dict["Latitude"]
+                                ]
+                            }
+                        }))                    
+                        line_count += 1
+        
+    try:
+        db.equipment_geolocation.bulk_write(write_requests)
+    except BulkWriteError as bwe:
+        print(bwe.details)
+    
 
 
 def main():
@@ -90,8 +174,8 @@ def main():
     fake_users = generate_fake_users(4)
     results = users.insert_many(fake_users)
     print(results.inserted_ids)
-
     insert_equipment(db)
+    insert_user_geolocation(db)
 
 if __name__ == "__main__":
     main()
