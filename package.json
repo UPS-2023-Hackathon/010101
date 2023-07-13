@@ -3,46 +3,47 @@
     "version": "1.0.0",
     "main": "index.js",
     "scripts": {
-      "start": "set DEBUG=http && nodemon ./src/server/app.js --exec babel-node",
-      "build": "babel src -d dist --copy-files",
-      "serve": "npm run build && node ./dist/server/app.js",
-      "format": "eslint src"
+        "start": "set DEBUG=http && nodemon ./src/server/app.js --exec babel-node",
+        "build": "babel src -d dist --copy-files",
+        "serve": "npm run build && node ./dist/server/app.js",
+        "format": "eslint src"
     },
     "author": "Jose Fano",
     "license": "ISC",
     "dependencies": {
-      "async": "^2.6.0",
-      "axios": "^0.18.1",
-      "body-parser": "^1.18.2",
-      "connect-timeout": "^1.9.0",
-      "cors": "^2.8.4",
-      "cuid": "^2.1.1",
-      "date-fns": "^1.29.0",
-      "debug": "^4.1.1",
-      "dotenv": "^6.0.0",
-      "express": "~4.16.0",
-      "express-validator": "^6.3.0",
-      "http-errors": "~1.6.2",
-      "jsonwebtoken": "^8.3.0",
-      "lodash": "^4.17.15",
-      "moment": "^2.24.0",
-      "moment-timezone": "^0.5.23",
-      "mongoose": "^5.5.11",
-      "mongoose-autopopulate": "^0.9.1"
+        "async": "^2.6.0",
+        "axios": "^0.18.1",
+        "body-parser": "^1.18.2",
+        "connect-timeout": "^1.9.0",
+        "cors": "^2.8.4",
+        "cuid": "^2.1.1",
+        "date-fns": "^1.29.0",
+        "debug": "^4.1.1",
+        "dotenv": "^6.0.0",
+        "express": "~4.16.0",
+        "express-validator": "^6.3.0",
+        "http-errors": "~1.6.2",
+        "jsonwebtoken": "^8.3.0",
+        "lodash": "^4.17.15",
+        "moment": "^2.24.0",
+        "moment-timezone": "^0.5.23",
+        "mongoose": "^5.5.11",
+        "mongoose-autopopulate": "^0.9.1",
+        "morgan": "^1.10.0"
     },
     "devDependencies": {
-      "@babel/cli": "^7.2.3",
-      "@babel/core": "^7.3.4",
-      "@babel/node": "^7.2.2",
-      "@babel/plugin-proposal-object-rest-spread": "^7.3.4",
-      "@babel/plugin-transform-async-to-generator": "^7.4.4",
-      "@babel/plugin-transform-regenerator": "^7.3.4",
-      "@babel/polyfill": "^7.2.5",
-      "@babel/preset-env": "^7.3.4",
-      "@babel/preset-stage-2": "^7.0.0",
-      "eslint": "^4.19.1"
+        "@babel/cli": "^7.2.3",
+        "@babel/core": "^7.3.4",
+        "@babel/node": "^7.2.2",
+        "@babel/plugin-proposal-object-rest-spread": "^7.3.4",
+        "@babel/plugin-transform-async-to-generator": "^7.4.4",
+        "@babel/plugin-transform-regenerator": "^7.3.4",
+        "@babel/polyfill": "^7.2.5",
+        "@babel/preset-env": "^7.3.4",
+        "@babel/preset-stage-2": "^7.0.0",
+        "eslint": "^4.19.1"
     },
     "engines": {
-      "node": "16.x"
+        "node": "16.x"
     }
-  }
+}

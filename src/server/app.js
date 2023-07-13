@@ -1,26 +1,22 @@
 require('dotenv').config()
 const createError = require('http-errors')
 const express = require('express')
+const morgan = require('morgan')
 const path = require('path')
+const dbcon = require('./db')
 const fs = require('fs')
-const debug = require('./debug')
-const cookieParser = require('cookie-parser')
 const config = require('./config')
 const cors = require('cors')
-const {mode, name, port, paths, httpCodes, TOKEN_SIGN_SECRET} = config
-const dev = (mode === 'development')
-const _ = require('lodash')
-const jwt = require('jsonwebtoken')
-const authenticate = require('./middlewares/authenticate')
-const logMiddleware = require('./middlewares/log')
+const {mode, port, httpCodes} = config
+const isDev = (mode === 'development')
+// const jwt = require('jsonwebtoken')
 const timeout = require('connect-timeout')
-
+const router = require('./routes')
 
 console.log('NODE_ENV: ', process.env.NODE_ENV)
 
-require('./db')()
+dbcon()
 .then( () => {
-
     console.log('Connected to Mongo db')
 
     /**
@@ -29,15 +25,6 @@ require('./db')()
      * -----------------------
      */
     const app = express()
-
-
-    /**
-     * -------------------------
-     * Middlewares...
-     * -------------------------
-     */
-    // app.use(logger(dev ? 'dev' : null))
-    app.use(cookieParser())
 
     /**
      *  CORS
@@ -50,11 +37,11 @@ require('./db')()
     // app.use(timeout(config.timeout))
 
     // Static
-    app.use('/', express.static(paths.PUBLIC))
+    app.use(express.static(path.join(__dirname, 'public')))
 
     // create a write stream (in append mode)
-    const accessLogStream = fs.createWriteStream(path.join(paths.ROOT, 'access.log'), { flags: 'a' })
-    const errorLogStream = fs.createWriteStream(path.join(paths.ROOT, 'error.log'), { flags: 'a' })
+    const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
+    const errorLogStream = fs.createWriteStream(path.join(__dirname, 'error.log'), { flags: 'a' })
 
     // Morgan middleware
     app.use(morgan('combined', { stream: accessLogStream }))
@@ -62,7 +49,8 @@ require('./db')()
     // API routes!
     app.get('/ping', (req,res) => {
         res.status(200).send('Hello world!')
-    })    
+    })
+    app.use('/api', router)
 
 
     // catch 404 and forward to error handler
@@ -82,7 +70,7 @@ require('./db')()
         console.log('Fallback error handler... ', err)
         console.log(err.stack)
 
-        const errStatus = err.status || 500
+        const errStatus = err.status || httpCodes.internalError
         const errMessage = err.message || 'Error: ' + err.stack
 
         if (res.headersSent) {
@@ -103,5 +91,6 @@ require('./db')()
 
 })
 .catch( err => {
-    console.error('connection error:', err)
+    console.error('DB connection error:', err)
+    process.exit(1)
 })
