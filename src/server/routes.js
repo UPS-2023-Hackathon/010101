@@ -1,6 +1,7 @@
 const express = require('express')
 const { default: mongoose } = require('mongoose')
 const Equipment = require('./models/Equipment')
+const User = require('./models/User')
 const EquipmentGeolocation = require('./models/EquipmentGeolocation')
 const _ = require('lodash')
 const config = require('./config')
@@ -8,6 +9,24 @@ const config = require('./config')
 
 const router = express.Router()
 const {httpCodes} = config
+
+router.post('/auth.login', async (req, res, next) => { 
+    const {username, password} = req.body
+    console.log(username, password)
+    try { 
+        const user = await User.findOne({username})
+        if (_.isEmpty(user)) { 
+            return res.status(httpCodes.notFound).end()
+        }
+        if (user.password === password) { 
+            res.json({success: true})
+        } else { 
+            res.status(httpCodes.unauthorized).end()
+        }
+    } catch (err) { 
+        next(err)
+    }
+})
 
 // Locate Equipment
 router.get('/equipment.locate', async (req, res, next) => { 
@@ -26,7 +45,7 @@ router.get('/equipment.locate', async (req, res, next) => {
             })
         }
 
-        if (_.isEmpty(eqp)) { 
+        if (_.isEmpty(eqp)) {
             return res
                 .status(httpCodes.notFound)
                 .json({
@@ -37,26 +56,24 @@ router.get('/equipment.locate', async (req, res, next) => {
         // Check if equipment document contains geolocation data
         // If it doesn't, look in the geolocation collection to find its last recorded location
         // If geolocation found in the log, update the document with the last geolocation data found
-        if (eqp.geolocation) {
+        if (!_.isEmpty(eqp.geolocation) && !_.isEmpty(eqp.geolocation.coordinates)) {
             res.json({
                 location: eqp.geolocation,
                 timestamp: eqp.geolocationTimestamp
             })             
         } else { 
             const lastRecordFound = await EquipmentGeolocation
-                .find({equipId: eqp.eqpNum})
+                .findOne({equipId: eqp.eqpNum})
                 .sort('-createdAt')
-                .limit(1)
 
             // Not found geolocation data
             if (_.isEmpty(lastRecordFound)) {                
                 return res.status(httpCodes.successNoContent).end()
             }
 
-            // TODO: UPdate the location here
-            eqp.geolocation = { 
-                // UPdate the location here
-            }
+            // Patch the equipment document with the geolocation here
+            eqp.geolocation = lastRecordFound.loc
+            eqp.geolocationTimestamp = lastRecordFound.createdAt
             await eqp.save()
 
             // Success
@@ -74,7 +91,7 @@ router.get('/equipment.locate', async (req, res, next) => {
 })
 
 // Query the Equipment details
-router.get('/equipment.queryDetails', async (req, res, next) => { 
+router.get('/equipment.query', async (req, res, next) => { 
     const {q: query, id} = req.query
     let eqp
     try { 

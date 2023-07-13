@@ -50,7 +50,7 @@ dbcon()
     app.get('/ping', (req,res) => {
         res.status(200).send('Hello world!')
     })
-    app.use('/api', router)
+    app.use('/api', express.json(), router)
 
 
     // catch 404 and forward to error handler
