@@ -1,0 +1,12 @@
+
+We need to load all the node modules
+### `npm install`
+
+We then install Mapview to display the map
+### `npx expo install react-native-maps`
+
+Google map search component for autocomplete
+### `npm install react-native-google-places-autocomplete --save`
+
+React native map directions
+### `npm install react-native-maps-directions`
