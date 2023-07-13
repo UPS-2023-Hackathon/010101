@@ -1,5 +1,5 @@
 const express = require('express')
-const { default: mongoose } = require('mongoose')
+const mongoose = require('mongoose')
 const Equipment = require('./models/Equipment')
 const User = require('./models/User')
 const EquipmentGeolocation = require('./models/EquipmentGeolocation')
@@ -119,6 +119,44 @@ router.get('/equipment.query', async (req, res, next) => {
         next(e)
     }
     
+})
+
+
+// Report the equipment is missing
+router.post('/equipment.reportMissing', async (req, res, next) => { 
+    const {eqpId, username, location} = req.body
+    const [lat, long] = location || []
+    try { 
+
+        if (!mongoose.Types.ObjectId.isValid(eqpId))
+                return next(new Error('Invalid identifier'))
+
+        const eqpUpdated = await Equipment.findByIdAndUpdate(eqpId, { 
+            $set: {
+                reportedMissing: true,
+                reportedMissingDate: new Date(),
+                reportedMissingByUser: username,
+                "geolocation.coordinates": [long, lat],
+                geolocationTimestamp: new Date(),
+                lastUpdated: new Date()
+            }
+        }, {new: true})
+
+        if (_.isEmpty(eqpUpdated)) { 
+            return res.status(httpCodes.notFound)
+                    .json({
+                        message: "Equipment not found"
+                    })
+        }
+
+        res.json({
+            success: true,
+            message: "Succesfully reported equipment missing"
+        })
+
+    } catch (e) { 
+        next(e)
+    }    
 })
 
 module.exports = router

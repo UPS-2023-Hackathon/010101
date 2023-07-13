@@ -44,6 +44,9 @@ const EquipmentSchema = new Schema({
     reportedMissingDate: {
         type: Date,
     },
+    reportedMissingByUser: {
+        type: String
+    },
     updatedAt: {
         type: Date
     },    
