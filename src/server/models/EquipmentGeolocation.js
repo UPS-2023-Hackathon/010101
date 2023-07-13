@@ -17,9 +17,18 @@ const EquipmentGeolocationSchema = new Schema({
         type: String,
         index: true
     },
-    // loc: {
-    //     type: "Point",
-    // },  
+    loc: {
+        type: {
+            type: String, // Don't do `{ location: { type: String } }`
+            enum: ['Point'], // 'location.type' must be 'Point'
+            required: true
+        },
+        coordinates: {
+            type: [Number],
+            required: true,
+            index: true
+        }
+    },  
     createdAt: {
         type: Date,
         default: Date.now,

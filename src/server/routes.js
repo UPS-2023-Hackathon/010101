@@ -66,8 +66,7 @@ router.get('/equipment.locate', async (req, res, next) => {
             })
 
         }
-
-       
+   
     } catch (e) { 
         next(e)
     }

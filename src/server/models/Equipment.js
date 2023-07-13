@@ -23,9 +23,18 @@ const EquipmentSchema = new Schema({
         type: String,
         index: true,
     },
-    // geolocation: {
-
-    // },
+    geolocation: {
+        type: {
+            type: String, // Don't do `{ location: { type: String } }`
+            enum: ['Point'], // 'location.type' must be 'Point'
+            required: true
+        },
+        coordinates: {
+            type: [Number],
+            required: true,
+            index: true
+        }
+    },
     geolocationTimestamp: {
         type: Date
     },
