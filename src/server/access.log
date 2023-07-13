@@ -19,3 +19,7 @@
 ::1 - - [13/Jul/2023:13:40:52 +0000] "POST /api/auth.login HTTP/1.1" 200 16 "-" "PostmanRuntime/7.32.3"
 ::1 - - [13/Jul/2023:13:40:59 +0000] "POST /api/auth.login HTTP/1.1" 404 - "-" "PostmanRuntime/7.32.3"
 ::1 - - [13/Jul/2023:13:41:04 +0000] "POST /api/auth.login HTTP/1.1" 200 16 "-" "PostmanRuntime/7.32.3"
+::1 - - [13/Jul/2023:14:23:36 +0000] "POST /api/equipment.reportMissing HTTP/1.1" 500 92 "-" "PostmanRuntime/7.32.3"
+::1 - - [13/Jul/2023:14:24:32 +0000] "POST /api/equipment.reportMissing HTTP/1.1" 500 61 "-" "PostmanRuntime/7.32.3"
+::1 - - [13/Jul/2023:14:31:45 +0000] "POST /api/equipment.reportMissing HTTP/1.1" 200 352 "-" "PostmanRuntime/7.32.3"
+::1 - - [13/Jul/2023:14:33:55 +0000] "POST /api/equipment.reportMissing HTTP/1.1" 200 67 "-" "PostmanRuntime/7.32.3"
