@@ -46,3 +46,7 @@
 ::1 - - [16/Jul/2023:14:27:59 +0000] "GET /api/equipment.locate?q=000002 HTTP/1.1" 200 147 "-" "PostmanRuntime/7.32.3"
 ::1 - - [16/Jul/2023:14:32:21 +0000] "GET /api/equipment.locate?q=000002 HTTP/1.1" 500 61 "-" "PostmanRuntime/7.32.3"
 ::1 - - [16/Jul/2023:14:32:36 +0000] "GET /api/equipment.locate?q=000002 HTTP/1.1" 200 232 "-" "PostmanRuntime/7.32.3"
+::1 - - [16/Jul/2023:16:45:38 +0000] "GET /api/equipment.query?q=000002 HTTP/1.1" 200 396 "-" "PostmanRuntime/7.32.3"
+::1 - - [16/Jul/2023:16:46:32 +0000] "POST /api/auth.login HTTP/1.1" 200 16 "-" "PostmanRuntime/7.32.3"
+::1 - - [16/Jul/2023:17:08:21 +0000] "GET /api/equipment.list HTTP/1.1" 404 52 "-" "PostmanRuntime/7.32.3"
+::1 - - [16/Jul/2023:17:16:03 +0000] "GET /api/equipment.list HTTP/1.1" 200 3370 "-" "PostmanRuntime/7.32.3"

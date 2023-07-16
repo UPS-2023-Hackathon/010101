@@ -158,6 +158,32 @@ router.get('/equipment.query', async (req, res, next) => {
 })
 
 
+// List Equipment
+router.get('/equipment.list', async (req, res, next) => { 
+    const {limit = 20, offset = 0} = req.query
+    let eqp
+    try { 
+        eqpList = await Equipment.find({})
+            .setOptions({
+                sort: 'eqpNum',
+                limit: parseInt(limit, 10),
+                skip: parseInt(offset, 10),
+                lean: true
+            })
+        
+       
+        if (_.isEmpty(eqpList)) { 
+            return res.status(httpCodes.successNoContent).end()
+        }
+        res.json({
+            data: eqpList
+        })
+    } catch (e) { 
+        next(e)
+    }
+    
+})
+
 // Report the equipment is missing
 router.post('/equipment.reportMissing', async (req, res, next) => { 
     const {eqpId, username, location} = req.body
