@@ -19,10 +19,6 @@ const EquipmentSchema = new Schema({
     eqpTypeCode: {
         type: String
     },
-    facilityCode: { 
-        type: String,
-        index: true,
-    },
     geolocation: {
         type: {
             type: String, // Don't do `{ location: { type: String } }`
@@ -49,7 +45,14 @@ const EquipmentSchema = new Schema({
     },
     updatedAt: {
         type: Date
-    },    
+    },
+    status: { 
+        type: String,
+        enum: ["parked", "moving", "missing"]
+    },
+    foundAtFacility: {
+        type: String
+    }
 }, {
     collection: "equipment"
 })

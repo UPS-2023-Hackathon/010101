@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const Equipment = require('./models/Equipment')
 const User = require('./models/User')
 const EquipmentGeolocation = require('./models/EquipmentGeolocation')
+const Facility = require('./models/Facility')
 const _ = require('lodash')
 const config = require('./config')
 
@@ -56,19 +57,17 @@ router.get('/equipment.locate', async (req, res, next) => {
         // Check if equipment document contains geolocation data
         // If it doesn't, look in the geolocation collection to find its last recorded location
         // If geolocation found in the log, update the document with the last geolocation data found
-        if (!_.isEmpty(eqp.geolocation) && !_.isEmpty(eqp.geolocation.coordinates)) {
-            res.json({
-                location: eqp.geolocation,
-                timestamp: eqp.geolocationTimestamp
-            })             
-        } else { 
+        if (_.isEmpty(eqp.geolocation) || _.isEmpty(eqp.geolocation.coordinates)) { 
             const lastRecordFound = await EquipmentGeolocation
                 .findOne({equipId: eqp.eqpNum})
                 .sort('-createdAt')
 
             // Not found geolocation data
             if (_.isEmpty(lastRecordFound)) {                
-                return res.status(httpCodes.successNoContent).end()
+                return res.status(httpCodes.successNoContent).send({
+                    success: false,
+                    message: "No geolocation data found for this equipment."
+                })
             }
 
             // Patch the equipment document with the geolocation here
@@ -76,13 +75,50 @@ router.get('/equipment.locate', async (req, res, next) => {
             eqp.geolocationTimestamp = lastRecordFound.createdAt
             await eqp.save()
 
-            // Success
-            res.json({
-                location: lastRecordFound.loc,
-                timestamp: lastRecordFound.createdAt
-            })
-
         }
+
+        console.log('Equipment ----', eqp)
+
+        // Check if equipment location is within a facility
+        const allFacilities = await Facility.find({})
+        for (const f of allFacilities) {
+            console.log(f)
+            const geofence = f.geofence
+            console.log('geofence', geofence)
+            const found = await Equipment.findOne({
+                $and: [
+                    {
+                        "geolocation": { $ne: null }
+                    },
+                    {
+                        "geolocation": {
+                            $geoWithin: {
+                                $geometry: geofence
+                            }
+                        },
+                    },
+                    {
+                        eqpNum: eqp.eqpNum
+                    }
+                ]                
+            })
+            if (!_.isEmpty(found)) {
+                eqp.foundAtFacility = f.name
+                break
+            }
+        }
+
+        // Success
+        res.json({
+            success: true,
+            message: `Equipment location identified at facility ${eqp.foundAtFacility} `,
+            data: {
+                location: eqp.geolocation,
+                timestamp: eqp.geolocationTimestamp,
+                foundAtFacility: eqp.foundAtFacility
+            }
+           
+        }) 
    
     } catch (e) { 
         next(e)

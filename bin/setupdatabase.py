@@ -31,6 +31,11 @@ def generate_fake_users(count=5):
     return users
 
 
+def insert_users(db):
+    users = db["users"]
+    fake_users = generate_fake_users(4)
+    results = users.insert_many(fake_users)
+    print(results.inserted_ids)
 
 def insert_equipment(db):
     with open('misc/equipdataset.csv') as csv_file:
@@ -82,8 +87,8 @@ def insert_user_geolocation(db):
                             "loc": {
                                 "type": "Point",
                                 "coordinates": [
-                                    row_dict["Longitude"],
-                                    row_dict["Latitude"]
+                                    float(row_dict["Longitude"]),
+                                    float(row_dict["Latitude"])
                                 ]
                             }
                         }))                    
@@ -105,8 +110,8 @@ def insert_user_geolocation(db):
                             "loc": {
                                 "type": "Point",
                                 "coordinates": [
-                                    row_dict["Longitude"],
-                                    row_dict["Latitude"]
+                                    float(row_dict["Longitude"]),
+                                    float(row_dict["Latitude"])
                                 ]
                             }
                         }))                    
@@ -128,8 +133,8 @@ def insert_user_geolocation(db):
                             "loc": {
                                 "type": "Point",
                                 "coordinates": [
-                                    row_dict["Longitude"],
-                                    row_dict["Latitude"]
+                                    float(row_dict["Longitude"]),
+                                    float(row_dict["Latitude"])
                                 ]
                             }
                         }))                    
@@ -139,6 +144,42 @@ def insert_user_geolocation(db):
         db.equipment_geolocation.bulk_write(write_requests)
     except BulkWriteError as bwe:
         print(bwe.details)
+
+
+def insert_facilities(db):
+    write_requests = []
+    with open('misc/geofencedata.csv') as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            if line_count == 0:
+                print(f'Column names are {", ".join(row)}')
+                line_count += 1
+            else:
+                facility_code, facility_geopoints = row
+                print(row)
+                points = []
+                for p in facility_geopoints.split(","):
+                    lat, long = p.split(" ")
+                    points.append([float(long), float(lat)])
+                
+                write_requests.append(InsertOne({
+                    "name": facility_code,
+                    "geofence": {
+                        "type": "Polygon",
+                        "coordinates": [points]
+                    },
+                    "createdAt": datetime.datetime.now(),
+                    "updatedAt": datetime.datetime.now(),
+                }))    
+                line_count += 1
+
+        print(f'Processed {line_count} lines.')
+        try:
+            db.facilities.bulk_write(write_requests)
+        except BulkWriteError as bwe:
+            print(bwe.details)
+
     
 
 
@@ -170,12 +211,10 @@ def main():
        
     db = client["hackathon2023"]
     print(db)
-    users = db["users"]
-    fake_users = generate_fake_users(4)
-    results = users.insert_many(fake_users)
-    print(results.inserted_ids)
-    insert_equipment(db)
-    insert_user_geolocation(db)
+    # insert_users(db)
+    # insert_equipment(db)
+    # insert_user_geolocation(db)
+    insert_facilities(db)
 
 if __name__ == "__main__":
     main()
